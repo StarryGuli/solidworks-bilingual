@@ -40,11 +40,20 @@ jobs:
         run: python -m PyInstaller build\swbilingual.spec --noconfirm --distpath dist --workpath build\work
 
       - name: Check that the command line executable runs
+        shell: pwsh
         run: |
           dist\swbilingual-cli.exe --help
+          if ($LASTEXITCODE -ne 0) { throw "--help failed with $LASTEXITCODE" }
+
           dist\swbilingual-cli.exe --lang zh --help
-          dist\swbilingual-cli.exe locate; if ($LASTEXITCODE -gt 1) { exit 1 }
-        shell: pwsh
+          if ($LASTEXITCODE -ne 0) { throw "--lang zh --help failed with $LASTEXITCODE" }
+
+          # locate reports 1 when no installation is present, which is the
+          # expected result on a runner. Anything above that is a real failure.
+          dist\swbilingual-cli.exe locate
+          if ($LASTEXITCODE -gt 1) { throw "locate failed with $LASTEXITCODE" }
+
+          exit 0
 
       - name: Check that the desktop executable starts
         shell: pwsh

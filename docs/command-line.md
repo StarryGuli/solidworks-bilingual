@@ -98,7 +98,8 @@ python swbilingual-cli.py locate
 ```
 
 Lists the SOLIDWORKS language folders found in the standard installation
-locations, with their build numbers.
+locations, with their build numbers. Reports `1` when none is found, so it can
+be used as a test in a script.
 
 ---
 

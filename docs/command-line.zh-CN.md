@@ -90,6 +90,7 @@ python swbilingual-cli.py locate
 ```
 
 列出常见安装位置下找到的 SOLIDWORKS 语言文件夹及其构建号。
+一个都没找到时返回 `1`，便于在脚本里作为判断条件使用。
 
 ---
 
