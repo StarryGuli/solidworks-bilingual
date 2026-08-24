@@ -14,6 +14,8 @@ Chinese translation, taken from the official Chinese pack of the same build.
 
 [中文说明](README.zh-CN.md)
 
+![The desktop application](docs/images/interface-en.png)
+
 ---
 
 ## What it produces
@@ -71,6 +73,12 @@ run [`build\build-exe.bat`](build/build-exe.bat).
 
 The interface is available in English and Chinese; switch with the selector in
 the top-right corner.
+
+![The application in Chinese](docs/images/interface-zh.png)
+
+Both pictures are captured automatically on a Windows runner by the
+[interface job](.github/workflows/tests.yml), so they always show the current
+build rather than an old mock-up.
 
 ### Option 2 — from source
 

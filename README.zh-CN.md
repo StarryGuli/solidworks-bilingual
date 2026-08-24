@@ -12,6 +12,8 @@ SOLIDWORKS 仍然加载它原来的英文语言包，不需要改动任何设置
 
 [English](README.md)
 
+![桌面程序](docs/images/interface-zh.png)
+
 ---
 
 ## 实际效果
@@ -64,6 +66,11 @@ Select entities to fit the new spline to. 选择将新样条曲线所套合到�
 5. **安装**页 —— 备份 SOLIDWORKS 正在使用的语言包并替换它。
 
 界面提供中英两种语言，用右上角的选择器切换。
+
+![英文界面](docs/images/interface-en.png)
+
+以上两张截图由 [interface 流水线](.github/workflows/tests.yml)
+在 Windows runner 上自动截取，因此永远反映当前版本，而不是一张过时的效果图。
 
 ### 方式二：从源码运行
 
