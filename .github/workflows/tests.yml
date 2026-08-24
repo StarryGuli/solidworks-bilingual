@@ -16,8 +16,8 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         python-version: ['3.8', '3.12']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run the test suite
@@ -41,8 +41,8 @@ jobs:
     name: Desktop interface (Windows)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
 
@@ -61,7 +61,7 @@ jobs:
           $chinese.WaitForExit()
 
       - name: Upload the screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: interface-screenshots
           path: screenshot-*.png
