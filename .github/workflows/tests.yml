@@ -52,14 +52,12 @@ jobs:
       - name: Photograph the interface
         shell: pwsh
         run: |
-          $english = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','en' -PassThru
-          Start-Sleep -Seconds 5
-          .\.github\scripts\capture-screen.ps1 -Path screenshot-en.png -WindowTitle 'SOLIDWORKS Bilingual Language Pack Builder'
+          $english = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','20','--language','en' -PassThru
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-en.png -ProcessId $english.Id
           $english.WaitForExit()
 
-          $chinese = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','zh' -PassThru
-          Start-Sleep -Seconds 5
-          .\.github\scripts\capture-screen.ps1 -Path screenshot-zh.png -WindowTitle 'SOLIDWORKS 双语语言包构建工具'
+          $chinese = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','20','--language','zh' -PassThru
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-zh.png -ProcessId $chinese.Id
           $chinese.WaitForExit()
 
       - name: Upload the screenshots

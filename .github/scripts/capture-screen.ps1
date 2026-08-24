@@ -6,13 +6,16 @@
     Used by the interface job to capture the application while it is on screen.
     Windows runners provide a graphical session, so the window renders normally.
 
-    With -WindowTitle, only that window is captured, which keeps the rest of the
-    runner desktop out of the picture and makes the result usable as
-    documentation. Without it, the whole screen is captured.
+    Give -ProcessId to capture just that process's window, which keeps the rest
+    of the runner desktop out of the picture and makes the image usable as
+    documentation. The window handle is read from the process itself rather than
+    matched by title, because the title is translated at run time. Falls back to
+    the whole screen when no window can be located.
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Path,
-    [string]$WindowTitle
+    [int]$ProcessId,
+    [int]$TimeoutSeconds = 20
 )
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -26,37 +29,55 @@ public struct RECT { public int Left, Top, Right, Bottom; }
 
 public static class Win32 {
     [DllImport("user32.dll")]
-    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-    [DllImport("user32.dll")]
     public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool IsWindowVisible(IntPtr hWnd);
 }
 '@
 
-$bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-$origin = $bounds.Location
-$size = $bounds.Size
+$screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+$origin = $screen.Location
+$size = $screen.Size
 
-if ($WindowTitle) {
-    $handle = [Win32]::FindWindow($null, $WindowTitle)
+if ($ProcessId) {
+    $handle = [IntPtr]::Zero
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        $process = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue
+        if (-not $process) { break }
+        $process.Refresh()
+        if ($process.MainWindowHandle -ne [IntPtr]::Zero -and
+            [Win32]::IsWindowVisible($process.MainWindowHandle)) {
+            $handle = $process.MainWindowHandle
+            break
+        }
+        Start-Sleep -Milliseconds 400
+    }
+
     if ($handle -ne [IntPtr]::Zero) {
         [void][Win32]::SetForegroundWindow($handle)
-        Start-Sleep -Milliseconds 700
+        Start-Sleep -Milliseconds 800
         $rect = New-Object RECT
         if ([Win32]::GetWindowRect($handle, [ref]$rect)) {
             $width = $rect.Right - $rect.Left
             $height = $rect.Bottom - $rect.Top
             if ($width -gt 0 -and $height -gt 0) {
-                $origin = New-Object System.Drawing.Point $rect.Left, $rect.Top
-                $size = New-Object System.Drawing.Size $width, $height
-                Write-Host "Capturing window '$WindowTitle'"
+                # Clamp to the screen: an off-screen edge cannot be captured.
+                $left = [Math]::Max($rect.Left, $screen.Left)
+                $top = [Math]::Max($rect.Top, $screen.Top)
+                $right = [Math]::Min($rect.Right, $screen.Right)
+                $bottom = [Math]::Min($rect.Bottom, $screen.Bottom)
+                $origin = New-Object System.Drawing.Point $left, $top
+                $size = New-Object System.Drawing.Size ($right - $left), ($bottom - $top)
+                Write-Host "Capturing the window of process $ProcessId"
             }
         }
     } else {
-        Write-Host "Window '$WindowTitle' not found; capturing the whole screen"
+        Write-Host "No visible window for process $ProcessId; capturing the whole screen"
     }
 }
 
