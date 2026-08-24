@@ -34,6 +34,8 @@ def main():
     parser.add_argument('--hold', type=float, default=0.0,
                         help='keep the window on screen for this many seconds')
     parser.add_argument('--language', default='en', choices=['en', 'zh'])
+    parser.add_argument('--geometry', default='780x660+40+20',
+                        help='window size and position while holding')
     args = parser.parse_args()
 
     import tkinter as tk
@@ -81,6 +83,10 @@ def main():
     app.var_out.set(r'D:\bilingual')
     app.log('SOLIDWORKS bilingual language pack builder')
     app.log('Interface smoke test: every widget built, both languages rendered.')
+    if args.hold:
+        # Keep the window clear of the taskbar so a capture of its rectangle
+        # contains the window and nothing else.
+        root.geometry(args.geometry)
     root.update()
 
     deadline = time.monotonic() + args.hold

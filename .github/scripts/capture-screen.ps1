@@ -31,6 +31,14 @@ public static class Win32 {
     [DllImport("user32.dll")]
     public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmGetWindowAttribute(
+        IntPtr hwnd, int attribute, out RECT value, int size);
+
+    // The window rectangle includes an invisible resize border; the extended
+    // frame bounds are what the user actually sees.
+    public const int ExtendedFrameBounds = 9;
+
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -62,7 +70,10 @@ if ($ProcessId) {
         [void][Win32]::SetForegroundWindow($handle)
         Start-Sleep -Milliseconds 800
         $rect = New-Object RECT
-        if ([Win32]::GetWindowRect($handle, [ref]$rect)) {
+        $ok = [Win32]::DwmGetWindowAttribute(
+            $handle, [Win32]::ExtendedFrameBounds, [ref]$rect, 16) -eq 0
+        if (-not $ok) { $ok = [Win32]::GetWindowRect($handle, [ref]$rect) }
+        if ($ok) {
             $width = $rect.Right - $rect.Left
             $height = $rect.Bottom - $rect.Top
             if ($width -gt 0 -and $height -gt 0) {
