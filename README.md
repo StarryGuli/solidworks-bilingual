@@ -222,4 +222,5 @@ that breaks either interface is caught before it is merged.
 
 ## License
 
-[MIT](LICENSE) for the tooling in this repository.
+[MIT](LICENSE) for the tooling in this repository. [NOTICE](NOTICE)
+explains what the license does not cover.

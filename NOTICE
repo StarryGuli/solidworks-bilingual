@@ -1,0 +1,15 @@
+Scope of the license
+====================
+
+The MIT license in LICENSE covers the tooling in this repository only.
+
+It does not cover SOLIDWORKS language packs or any translation contained in
+them. Those are the property of Dassault Systemes, are not included in this
+repository, and must not be redistributed in original or in merged form.
+
+SOLIDWORKS is a registered trademark of Dassault Systemes. This project is not
+affiliated with, endorsed by, or supported by Dassault Systemes.
+
+Using this tool requires a licensed SOLIDWORKS installation. It reads the
+language packs already present in that installation and writes a modified copy;
+the packs themselves are never distributed with this software.

@@ -198,4 +198,4 @@ python -m unittest discover -s tests
 
 ## 许可证
 
-本仓库中的工具代码采用 [MIT](LICENSE) 许可证。
+本仓库中的工具代码采用 [MIT](LICENSE) 许可证。[NOTICE](NOTICE) 说明了该许可证不涵盖的内容。
