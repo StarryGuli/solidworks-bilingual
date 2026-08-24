@@ -54,12 +54,12 @@ jobs:
         run: |
           $english = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','en' -PassThru
           Start-Sleep -Seconds 5
-          .\.github\scripts\capture-screen.ps1 -Path screenshot-en.png
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-en.png -WindowTitle 'SOLIDWORKS Bilingual Language Pack Builder'
           $english.WaitForExit()
 
           $chinese = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','zh' -PassThru
           Start-Sleep -Seconds 5
-          .\.github\scripts\capture-screen.ps1 -Path screenshot-zh.png
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-zh.png -WindowTitle 'SOLIDWORKS 双语语言包构建工具'
           $chinese.WaitForExit()
 
       - name: Upload the screenshots
