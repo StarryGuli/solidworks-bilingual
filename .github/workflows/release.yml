@@ -63,7 +63,7 @@ jobs:
           if ($app.HasExited) {
               throw "SWBilingual.exe exited on its own with code $($app.ExitCode)."
           }
-          .\.github\scripts\capture-screen.ps1 -Path packaged-application.png
+          .\.github\scripts\capture-screen.ps1 -Path packaged-application.png -ProcessId $app.Id
           Stop-Process -Id $app.Id -Force
           Write-Host 'The packaged application started and stayed running.'
 
