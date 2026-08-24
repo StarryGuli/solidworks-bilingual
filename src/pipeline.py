@@ -27,6 +27,59 @@ ANCHOR_DLL = 'sldresu.dll'
 LANGUAGES = ('en', 'zh')
 
 
+def use_unicode_console():
+    """Make the console able to print Chinese.
+
+    A Windows console runs on a legacy code page unless told otherwise, and
+    `charmap` cannot encode Chinese characters: printing one raises
+    UnicodeEncodeError and takes the program down. That applies to the English
+    output too, which contains the phrase "English 中文". The console is asked
+    for UTF-8, and the streams are reconfigured to replace anything that still
+    cannot be represented, so output is never fatal.
+    """
+    if os.name == 'nt':
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+            ctypes.windll.kernel32.SetConsoleCP(65001)
+        except Exception:
+            pass                      # a redirected or absent console: harmless
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
+def system_language():
+    """The language this computer is set to, as a locale string."""
+    for name in ('LC_ALL', 'LC_MESSAGES', 'LANG'):
+        value = os.environ.get(name)
+        if value:
+            return value
+    try:
+        import locale
+        code = locale.getlocale()[0]
+        if not code:
+            import warnings
+            with warnings.catch_warnings():
+                # getdefaultlocale is deprecated from 3.13 but is still the
+                # only call that reports the Windows user default.
+                warnings.simplefilter('ignore', DeprecationWarning)
+                code = locale.getdefaultlocale()[0]
+        return code or ''
+    except (ImportError, ValueError, TypeError):
+        return ''
+
+
+def preferred_language():
+    """'zh' or 'en', from SWBILINGUAL_LANG or the system locale."""
+    chosen = os.environ.get('SWBILINGUAL_LANG', '')[:2]
+    if chosen in LANGUAGES:
+        return chosen
+    return 'zh' if system_language().lower().startswith('zh') else 'en'
+
+
 def message(en, zh):
     return {'en': en, 'zh': zh}
 

@@ -8,6 +8,14 @@ All notable changes to this project are recorded here. The format follows
 
 First public release.
 
+### Fixed
+
+- Output no longer fails on a Windows console using a legacy code page. Printing
+  Chinese raised `UnicodeEncodeError` and ended the program, which affected the
+  English interface as well because its own description contains the phrase
+  "English 中文". The console is now asked for UTF-8 and the streams replace
+  anything that still cannot be represented.
+
 ### Added
 
 - Desktop application with an English and a Chinese interface: pack selection,

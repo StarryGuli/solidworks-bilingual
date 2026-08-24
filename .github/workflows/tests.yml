@@ -22,7 +22,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run the test suite
         run: python -m unittest discover -s tests -v
+      # Both interfaces print Chinese, including the English one: the phrase
+      # "English 中文" appears in its own description. A console on a legacy
+      # code page must not turn that into a crash.
       - name: Check that the command line starts in both languages
+        run: |
+          python swbilingual-cli.py --help
+          python swbilingual-cli.py --lang zh --help
+
+      - name: Check the command line on a console without Chinese
+        env:
+          PYTHONIOENCODING: cp1252
         run: |
           python swbilingual-cli.py --help
           python swbilingual-cli.py --lang zh --help

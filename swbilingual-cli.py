@@ -12,7 +12,6 @@
 Add --lang zh for Chinese output. Run a command with --help for its options.
 """
 import argparse
-import locale
 import os
 import sys
 
@@ -133,14 +132,7 @@ def detect_language(argv):
         if a.startswith('--lang='):
             v = a.split('=', 1)[1]
             return v if v in pipeline.LANGUAGES else 'en'
-    env = os.environ.get('SWBILINGUAL_LANG', '')
-    if env[:2] in pipeline.LANGUAGES:
-        return env[:2]
-    try:
-        code = (locale.getdefaultlocale()[0] or '')
-    except ValueError:
-        code = ''
-    return 'zh' if code.lower().startswith('zh') else 'en'
+    return pipeline.preferred_language()
 
 
 class ConsoleProgress(pipeline.Progress):
@@ -309,6 +301,7 @@ def build_parser(s):
 
 
 def main(argv=None):
+    pipeline.use_unicode_console()
     argv = list(sys.argv[1:] if argv is None else argv)
     lang = detect_language(argv)
     s = STRINGS[lang]

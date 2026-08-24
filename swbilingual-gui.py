@@ -218,15 +218,7 @@ class App(object):
 
     @staticmethod
     def _initial_language():
-        env = os.environ.get('SWBILINGUAL_LANG', '')
-        if env[:2] in pipeline.LANGUAGES:
-            return env[:2]
-        try:
-            import locale
-            code = locale.getdefaultlocale()[0] or ''
-        except Exception:
-            code = ''
-        return 'zh' if code.lower().startswith('zh') else 'en'
+        return pipeline.preferred_language()
 
     def t(self, key):
         return UI[self.lang.get()][key]
