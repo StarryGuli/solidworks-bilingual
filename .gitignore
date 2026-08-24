@@ -1,0 +1,34 @@
+# Build output
+build/work/
+dist/
+*.spec.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Language packs and generated packs must never be committed:
+# they are Dassault Systèmes files, several hundred megabytes each.
+*.dll
+*.chm
+*.xaml
+english/
+english_*/
+chinese/
+chinese_*/
+*.backup-*/
+out/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local logs
+swbilingual-log*.txt

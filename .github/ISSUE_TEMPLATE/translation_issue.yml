@@ -1,0 +1,27 @@
+name: Wrong or awkward label
+description: A merged label reads badly or breaks a layout
+labels: [translation]
+body:
+  - type: input
+    id: label
+    attributes:
+      label: The label as it appears
+      placeholder: 从组中移除()
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where it appears
+      placeholder: Right-click menu in the assembly tree
+  - type: input
+    id: build
+    attributes:
+      label: SOLIDWORKS build number
+      placeholder: 33.0.0.5050
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should read instead

@@ -1,0 +1,118 @@
+name: Release
+
+# Builds the Windows executables and attaches them to a release.
+#
+#   git tag v1.0.0 && git push origin v1.0.0
+#
+# Running the workflow by hand builds and uploads the same files as a build
+# artifact, without creating a release, which is a safe way to test a change to
+# the packaging.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Build the Windows executables
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller
+
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -v
+
+      - name: Build every widget and render both languages
+        run: python tests\gui_smoke.py
+
+      - name: Build the executables
+        run: python -m PyInstaller build\swbilingual.spec --noconfirm --distpath dist --workpath build\work
+
+      - name: Check that the command line executable runs
+        run: |
+          dist\swbilingual-cli.exe --help
+          dist\swbilingual-cli.exe --lang zh --help
+          dist\swbilingual-cli.exe locate; if ($LASTEXITCODE -gt 1) { exit 1 }
+        shell: pwsh
+
+      - name: Check that the desktop executable starts
+        shell: pwsh
+        run: |
+          $app = Start-Process dist\SWBilingual.exe -PassThru
+          Start-Sleep -Seconds 10
+          if ($app.HasExited) {
+              throw "SWBilingual.exe exited on its own with code $($app.ExitCode)."
+          }
+          .\.github\scripts\capture-screen.ps1 -Path packaged-application.png
+          Stop-Process -Id $app.Id -Force
+          Write-Host 'The packaged application started and stayed running.'
+
+      - name: Assemble the package
+        shell: pwsh
+        run: |
+          $version = if ($env:GITHUB_REF -like 'refs/tags/*') {
+              $env:GITHUB_REF -replace 'refs/tags/', ''
+          } else {
+              'dev-' + $env:GITHUB_SHA.Substring(0, 7)
+          }
+          "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+          $stage = "SWBilingual-$version"
+          New-Item -ItemType Directory -Path $stage | Out-Null
+          Copy-Item dist\SWBilingual.exe, dist\swbilingual-cli.exe $stage
+          Copy-Item README.md, README.zh-CN.md, LICENSE, CHANGELOG.md $stage
+          Copy-Item docs $stage\docs -Recurse
+
+          Compress-Archive -Path "$stage\*" -DestinationPath "$stage.zip"
+          $hash = (Get-FileHash "$stage.zip" -Algorithm SHA256).Hash
+          "$hash  $stage.zip" | Out-File -FilePath SHA256SUMS.txt -Encoding ascii
+          Get-Content SHA256SUMS.txt
+
+      - name: Upload the build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SWBilingual-${{ env.VERSION }}
+          path: |
+            SWBilingual-*.zip
+            SHA256SUMS.txt
+            packaged-application.png
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $template = @'
+          Windows executables for {VERSION}, built from this tag by GitHub Actions.
+
+          | File | Purpose |
+          | --- | --- |
+          | `SWBilingual.exe` | Desktop application. Double-click to run |
+          | `swbilingual-cli.exe` | Command line interface |
+
+          Nothing has to be installed. Both interfaces are available in English
+          and in Chinese.
+
+          Verify the download against `SHA256SUMS.txt`.
+
+          This release contains no SOLIDWORKS files. A licensed installation,
+          with the English and Chinese language packs of the same build, is
+          required.
+          '@
+          $template.Replace('{VERSION}', $env:VERSION) |
+              Out-File -FilePath notes.md -Encoding utf8
+          gh release create $env:VERSION `
+            "SWBilingual-$env:VERSION.zip" SHA256SUMS.txt `
+            --title $env:VERSION --notes-file notes.md

@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  unit:
+    name: Unit tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.8', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -v
+      - name: Check that the command line starts in both languages
+        run: |
+          python swbilingual-cli.py --help
+          python swbilingual-cli.py --lang zh --help
+
+  interface:
+    name: Desktop interface (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build every widget and render both languages
+        run: python tests\gui_smoke.py
+
+      - name: Photograph the interface
+        shell: pwsh
+        run: |
+          $english = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','en' -PassThru
+          Start-Sleep -Seconds 5
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-en.png
+          $english.WaitForExit()
+
+          $chinese = Start-Process python -ArgumentList 'tests\gui_smoke.py','--hold','12','--language','zh' -PassThru
+          Start-Sleep -Seconds 5
+          .\.github\scripts\capture-screen.ps1 -Path screenshot-zh.png
+          $chinese.WaitForExit()
+
+      - name: Upload the screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-screenshots
+          path: screenshot-*.png
+          if-no-files-found: warn

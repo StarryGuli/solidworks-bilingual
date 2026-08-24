@@ -1,0 +1,39 @@
+name: Problem report
+description: Something did not work
+labels: [bug]
+body:
+  - type: input
+    id: build
+    attributes:
+      label: SOLIDWORKS build number
+      description: Printed by `swbilingual-cli.py check`, for example 33.0.0.5050
+      placeholder: 33.0.0.5050
+    validations:
+      required: true
+  - type: dropdown
+    id: step
+    attributes:
+      label: Which step failed
+      options: [check, preview, build, verify, install, restore, starting the application]
+    validations:
+      required: true
+  - type: dropdown
+    id: interface
+    attributes:
+      label: How were you running it
+      options: [SWBilingual.exe, desktop application from source, command line]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: Use Save log in the application, or paste the console output. Do not attach language pack files.
+      render: text
