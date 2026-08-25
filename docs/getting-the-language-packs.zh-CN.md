@@ -8,12 +8,15 @@
 
 ## 语言包在哪里
 
-两个都在 SOLIDWORKS 安装目录下：
+两个都在 SOLIDWORKS 安装目录的 `lang` 文件夹下：
 
 ```
 C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english
-C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
+C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified
 ```
+
+盘符和路径可能不同——装在 `E:` 盘很常见。`locate` 会从注册表读取真实安装路径，
+不会假定在 `C:` 盘。
 
 列出本机已有的语言包及其构建号：
 
@@ -39,10 +42,19 @@ python swbilingual-cli.py locate
 
 全程无需重装，也不会影响现有设置。
 
-> **要简体，不是繁体。** 有些安装里文件夹就叫 `chinese`，
-> 而根据当初勾选的内容，它可能是**繁体**中文。
-> 跑一下 `swbilingual-cli.py preview <英文包> <中文包>` 看几行输出：
-> 如果文字不是你预期的简体措辞，就是装错了变体，按上面的步骤补装简体中文。
+> **哪个文件夹才是简体？** SOLIDWORKS 把「中文」和「简体中文」作为两个独立语言提供，
+> 所以 `lang` 下可能同时存在 `chinese` 和 `chinese-simplified` 两个文件夹——
+> 而且不同机器的对应关系并不一致：名为 `chinese` 的文件夹，
+> 在有些机器上是繁体，在另一些机器上是简体，还可能是空的。
+>
+> **不要靠名字判断。** `check` 会直接读取包内容并告诉你里面到底是什么：
+>
+> ```
+> 简繁体：简体
+> ```
+>
+> 如果你选了一个空的或不存在的文件夹，报错会列出它旁边确实含有语言包的文件夹，
+> 并标明每个是简体还是繁体。
 
 ## 如果安装管理程序下载不了
 

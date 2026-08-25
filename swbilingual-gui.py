@@ -48,6 +48,15 @@ UI = {
         'hint_output': 'A new folder. The English pack is copied here first, then '
                        'patched. Nothing in the source folders is modified.',
         'btn_check': 'Check packs',
+        'btn_detect_sources': 'Find installed packs',
+        'detected_sources': 'Found the installed packs: English at %s',
+        'detected_chinese': 'Chinese at %s',
+        'no_chinese_found': 'A SOLIDWORKS installation was found, but it has no '
+                            'Chinese language pack. Add one through the '
+                            'SOLIDWORKS Installation Manager; see the guide '
+                            'linked from the About tab.',
+        'variant_simplified': 'The Chinese pack contains Simplified Chinese.',
+        'variant_traditional': 'The Chinese pack contains Traditional Chinese.',
         'btn_preview': 'Preview',
         'preview_title': 'Preview of the merge',
         'preview_head': 'Examined %d files, %d matched string pairs, %d would become bilingual.',
@@ -128,6 +137,14 @@ UI = {
         'hint_output': '请选择一个新文件夹。程序会先把英文语言包复制到这里再修补，'
                        '不会改动来源文件夹中的任何文件。',
         'btn_check': '检查语言包',
+        'btn_detect_sources': '查找已安装的语言包',
+        'detected_sources': '已找到已安装的语言包：英文在 %s',
+        'detected_chinese': '中文在 %s',
+        'no_chinese_found': '找到了 SOLIDWORKS 安装，但其中没有中文语言包。'
+                            '请通过 SOLIDWORKS 安装管理程序添加，'
+                            '具体步骤见「关于」页链接的说明。',
+        'variant_simplified': '该中文包的内容是简体中文。',
+        'variant_traditional': '该中文包的内容是繁体中文。',
         'btn_preview': '预览',
         'preview_title': '合并结果预览',
         'preview_head': '已检查 %d 个文件，匹配字符串 %d 对，其中 %d 条将变为双语。',
@@ -313,8 +330,11 @@ class App(object):
         self.track(src, 'grp_source')
         self._folder_row(src, 0, 'lbl_english', self.var_en, 'pick_english')
         self._folder_row(src, 1, 'lbl_chinese', self.var_cn, 'pick_chinese')
-        self.track(ttk.Label(src, style='Hint.TLabel', wraplength=660, justify='left'),
-                   'hint_source').grid(row=2, column=0, columnspan=3, sticky='w', pady=(4, 0))
+        self.track(ttk.Button(src, width=22, command=self.do_detect_sources),
+                   'btn_detect_sources').grid(row=2, column=2, sticky='e', padx=(8, 0),
+                                              pady=(6, 0))
+        self.track(ttk.Label(src, style='Hint.TLabel', wraplength=520, justify='left'),
+                   'hint_source').grid(row=2, column=0, columnspan=2, sticky='w', pady=(4, 0))
 
         out = ttk.LabelFrame(tab, padding=PAD)
         out.pack(fill='x', pady=(PAD, 0))
@@ -517,6 +537,8 @@ class App(object):
                                            report.get('cn_dll_count', '?'),
                                            report.get('cn_version') or '?'))
         self.log('Matched pairs: %s' % report.get('paired_dll_count', 0))
+        if report.get('cn_variant'):
+            self.log(self.t('variant_%s' % report['cn_variant']))
         if report.get('xaml'):
             self.log('XAML: %s' % ', '.join(report['xaml']))
         for w in report.get('warnings', []):
@@ -537,6 +559,25 @@ class App(object):
                 text(e, self.lang.get()) for e in report['errors']))
             return
         PreviewWindow(self, en, cn)
+
+    def do_detect_sources(self):
+        packs = pipeline.find_installed_lang_dirs()
+        if not packs:
+            messagebox.showinfo(self.t('info_title'), self.t('no_lang_found'))
+            return
+        english = packs.get('english')
+        if english:
+            self.var_en.set(english)
+            self.log(self.t('detected_sources') % english)
+        chinese = pipeline.pick_chinese_pack(packs)
+        if not chinese:
+            messagebox.showinfo(self.t('info_title'), self.t('no_chinese_found'))
+            return
+        self.var_cn.set(chinese)
+        self.log(self.t('detected_chinese') % chinese)
+        variant = pipeline.pack_chinese_variant(chinese)
+        if variant:
+            self.log(self.t('variant_%s' % variant))
 
     def do_build(self):
         en, cn, out = self.var_en.get(), self.var_cn.get(), self.var_out.get()

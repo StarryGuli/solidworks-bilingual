@@ -130,11 +130,17 @@ Both live under the SOLIDWORKS installation:
 
 ```
 C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english
-C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
+C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified
 ```
 
-`swbilingual-cli.py locate` lists the folders present on the machine, with their
-build numbers.
+`swbilingual-cli.py locate`, and **Find installed packs** in the application,
+list the folders present on the machine with their build numbers. The
+installation is located through the registry, so it is found on any drive.
+
+SOLIDWORKS offers *Chinese* and *Chinese Simplified* as separate languages, and
+installations disagree about which folder holds which — a folder named `chinese`
+is Traditional on some machines and Simplified on others. The tool reads the
+pack and tells you which script it contains rather than guessing from the name.
 
 English is always installed; the Chinese pack usually has to be added, through
 the SOLIDWORKS Installation Manager so that it matches your build.

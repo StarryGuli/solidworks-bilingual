@@ -10,12 +10,15 @@ out — see [Trying it without SOLIDWORKS](#trying-it-without-solidworks) below.
 
 ## Where the packs live
 
-Both sit under the SOLIDWORKS installation:
+Both sit under the SOLIDWORKS installation, in the `lang` folder:
 
 ```
 C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english
-C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
+C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified
 ```
+
+The drive and folder can differ — an installation on `E:` is perfectly normal,
+and `locate` reads the real path from the registry rather than assuming `C:`.
 
 List what is present, with build numbers:
 
@@ -44,11 +47,22 @@ this tool requires.
 
 No reinstallation is needed and existing settings are untouched.
 
-> **Simplified, not Traditional.** Some installations label the folder simply
-> `chinese`, and depending on what was selected that can be Traditional Chinese.
-> Run `swbilingual-cli.py preview <english> <chinese>` and read a few lines: if
-> the text is not the Simplified wording you expect, the wrong variant is
-> installed. Add Chinese Simplified through the steps above.
+> **Which folder is the Simplified one?** SOLIDWORKS offers *Chinese* and
+> *Chinese Simplified* as two separate languages, so a `lang` folder can hold
+> `chinese` and `chinese-simplified` side by side — and installations disagree
+> about which is which. A folder named `chinese` contains Traditional Chinese on
+> some machines and Simplified on others, and is sometimes empty.
+>
+> Do not go by the name. `check` reads the pack and reports what is actually in
+> it:
+>
+> ```
+> Chinese script: Simplified
+> ```
+>
+> If you point the tool at an empty or missing folder, the error names the
+> folders beside it that do contain a pack, and says which script each one is
+> written in.
 
 ## If the Installation Manager cannot download
 

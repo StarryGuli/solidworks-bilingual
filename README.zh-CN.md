@@ -119,10 +119,15 @@ Measure Distance 测量距离
 
 ```
 C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english
-C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
+C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified
 ```
 
-运行 `swbilingual-cli.py locate` 可以列出本机已有的语言文件夹及其构建号。
+运行 `swbilingual-cli.py locate`，或点桌面程序里的**查找已安装的语言包**，
+即可列出本机已有的语言文件夹及其构建号。安装路径通过注册表定位，装在哪个盘都能找到。
+
+SOLIDWORKS 把「中文」和「简体中文」作为两个独立语言提供，
+而不同机器上这两个文件夹的对应关系并不一致——名为 `chinese` 的文件夹，
+有的机器上是繁体，有的是简体。本工具会直接读取包内容判断简繁，不靠文件夹名猜。
 
 英文包一定有；中文包通常需要另外添加，并且要通过 SOLIDWORKS 安装管理程序添加，
 才能保证与你的构建号一致。

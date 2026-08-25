@@ -52,6 +52,9 @@ STRINGS = {
         'r_english': 'English pack : %s DLLs, build %s',
         'r_chinese': 'Chinese pack : %s DLLs, build %s',
         'r_paired': 'Matched pairs: %s DLLs',
+        'r_variant': 'Chinese script: %s',
+        'v_simplified': 'Simplified',
+        'v_traditional': 'Traditional',
         'r_xaml': 'XAML dicts   : %s',
         'r_warning': 'Warning: %s',
         'r_error': 'Error  : %s',
@@ -101,6 +104,9 @@ STRINGS = {
         'r_english': '英文语言包：%s 个 DLL，构建 %s',
         'r_chinese': '中文语言包：%s 个 DLL，构建 %s',
         'r_paired': '匹配文件数：%s 个 DLL',
+        'r_variant': '简繁体：%s',
+        'v_simplified': '简体',
+        'v_traditional': '繁体',
         'r_xaml': 'XAML 字典  ：%s',
         'r_warning': '警告：%s',
         'r_error': '错误：%s',
@@ -174,6 +180,9 @@ def cmd_check(args, s, lang):
     print(s['r_chinese'] % (report.get('cn_dll_count', '?'),
                             report.get('cn_version') or unknown))
     print(s['r_paired'] % report.get('paired_dll_count', 0))
+    variant = report.get('cn_variant')
+    if variant:
+        print(s['r_variant'] % s['v_%s' % variant])
     if report.get('xaml'):
         print(s['r_xaml'] % ', '.join(report['xaml']))
     for w in report.get('warnings', []):

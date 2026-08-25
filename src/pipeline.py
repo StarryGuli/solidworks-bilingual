@@ -116,6 +116,134 @@ def _dlls(directory):
     return sorted(f for f in os.listdir(directory) if f.lower().endswith('.dll'))
 
 
+def _is_pack(directory):
+    """A language pack is a folder holding the anchor DLL."""
+    try:
+        return any(f.lower() == ANCHOR_DLL for f in os.listdir(directory))
+    except OSError:
+        return False
+
+
+# Characters whose simplified and traditional forms are both common in a CAD
+# interface, and where neither form appears in the other script. Counting them
+# tells the two Chinese packs apart by content, which is the only reliable way:
+# the folder name does not settle it. Installations exist where the simplified
+# pack sits in a folder called `chinese`.
+SIMPLIFIED_ONLY = '图时实会说边线择应单击关闭开显视转换参数设圆长宽编辑删键类样对齐组确选义计'
+TRADITIONAL_ONLY = '圖時實會說邊線擇應單擊關閉開顯視轉換參數設圓長寬編輯刪鍵類樣對齊組確選義計'
+
+
+def chinese_variant(strings, minimum=8):
+    """'simplified', 'traditional', or None when the sample does not say.
+
+    `minimum` is how many distinguishing characters must be seen before the
+    answer is reported at all.
+    """
+    simplified = traditional = 0
+    for text_value in strings:
+        for character in text_value:
+            if character in SIMPLIFIED_ONLY:
+                simplified += 1
+            elif character in TRADITIONAL_ONLY:
+                traditional += 1
+    if simplified + traditional < minimum:
+        return None
+    if simplified > traditional * 3:
+        return 'simplified'
+    if traditional > simplified * 3:
+        return 'traditional'
+    return None
+
+
+def pack_chinese_variant(directory, sample_limit=400):
+    """Read a little of a pack and report which Chinese script it is written in."""
+    try:
+        import res_reader
+    except ImportError:
+        return None
+    path = os.path.join(directory, ANCHOR_DLL)
+    if not os.path.exists(path):
+        for name in os.listdir(directory):
+            if name.lower() == ANCHOR_DLL:
+                path = os.path.join(directory, name)
+                break
+        else:
+            return None
+    try:
+        blocks = res_reader.read_string_blocks(path)
+    except Exception:
+        return None
+    sample = []
+    for strings in blocks.values():
+        for one in strings:
+            if one:
+                sample.append(one)
+        if len(sample) >= sample_limit:
+            break
+    return chinese_variant(sample)
+
+
+def sibling_packs(directory):
+    """Language pack folders sitting next to `directory`, by folder name.
+
+    Used to turn "there is nothing here" into "the pack you want is the folder
+    next door". SOLIDWORKS names the Simplified Chinese pack
+    `chinese-simplified`; the folder called `chinese` holds Traditional Chinese
+    and on many installations is empty.
+    """
+    found = {}
+    try:
+        parent = os.path.dirname(os.path.abspath(directory.rstrip('\\/')))
+        for name in sorted(os.listdir(parent)):
+            path = os.path.join(parent, name)
+            if os.path.isdir(path) and _is_pack(path):
+                found[name] = path
+    except OSError:
+        pass
+    return found
+
+
+def _empty_folder_message(directory, label_en, label_zh, prefix=None):
+    """Say what is wrong, and name the folders that would work instead."""
+    neighbours = sibling_packs(directory)
+    neighbours.pop(os.path.basename(os.path.abspath(directory.rstrip('\\/'))), None)
+    if prefix:
+        # Suggest packs for the language that failed, not every pack installed.
+        same_language = {n: p for n, p in neighbours.items()
+                         if n.lower().startswith(prefix)}
+        if same_language:
+            neighbours = same_language
+    if not neighbours:
+        return message(
+            'No resource DLLs were found in the %s folder: %s'
+            % (label_en, directory),
+            '%s文件夹中没有找到资源 DLL：%s' % (label_zh, directory))
+
+    described = []
+    for name in sorted(neighbours):
+        variant = pack_chinese_variant(neighbours[name])
+        if variant == 'simplified':
+            described.append('%s (Simplified Chinese / 简体)' % name)
+        elif variant == 'traditional':
+            described.append('%s (Traditional Chinese / 繁體)' % name)
+        else:
+            described.append(name)
+    names = ', '.join(described)
+    hint_en = ('No resource DLLs were found in the %s folder: %s\n'
+               'These folders beside it do contain a language pack: %s'
+               % (label_en, directory, names))
+    hint_zh = ('%s文件夹中没有找到资源 DLL：%s\n'
+               '它旁边这些文件夹里确实有语言包：%s' % (label_zh, directory, names))
+    if any(n.lower().startswith('chinese') for n in neighbours):
+        hint_en += ('\nSOLIDWORKS ships Chinese and Chinese Simplified as separate '
+                    'languages, so a folder named "chinese" is not necessarily the '
+                    'simplified one. Pick the folder marked Simplified above.')
+        hint_zh += ('\nSOLIDWORKS 把「中文」和「简体中文」作为两个独立语言提供，'
+                    '所以名为「chinese」的文件夹不一定就是简体。'
+                    '请选上面标注为简体的那个文件夹。')
+    return message(hint_en, hint_zh)
+
+
 def inspect(en_dir, cn_dir):
     """Check a pair of language packs before any file is written.
 
@@ -140,13 +268,11 @@ def inspect(en_dir, cn_dir):
     report['en_dll_count'] = len(en_files)
     report['cn_dll_count'] = len(cn_files)
     if not en_files:
-        report['errors'].append(message(
-            'No resource DLLs were found in the English folder.',
-            '英文文件夹中没有找到资源 DLL。'))
+        report['errors'].append(
+            _empty_folder_message(en_dir, 'English', '英文', 'english'))
     if not cn_files:
-        report['errors'].append(message(
-            'No resource DLLs were found in the Chinese folder.',
-            '中文文件夹中没有找到资源 DLL。'))
+        report['errors'].append(
+            _empty_folder_message(cn_dir, 'Chinese', '中文', 'chinese'))
 
     en_v = pe_version.pack_version(en_dir)
     cn_v = pe_version.pack_version(cn_dir)
@@ -172,13 +298,22 @@ def inspect(en_dir, cn_dir):
     cn_lower = {f.lower() for f in cn_files}
     paired = [f for f in en_files if f.lower() in cn_lower]
     report['paired_dll_count'] = len(paired)
-    if not paired:
+    if not paired and en_files and cn_files:
         report['errors'].append(message(
             'No DLL in the English folder has a counterpart in the Chinese folder. '
             'Check that both paths point at a language pack rather than at an '
             'installation root.',
             '英文文件夹中没有任何 DLL 能在中文文件夹里找到同名文件。'
             '请确认两个路径指向的是语言包目录，而不是安装根目录。'))
+
+    report['cn_variant'] = pack_chinese_variant(cn_dir) if cn_files else None
+    if report['cn_variant'] == 'traditional':
+        report['warnings'].append(message(
+            'The Chinese pack is written in Traditional Chinese. The merge will '
+            'work, but the labels will be Traditional. If you want Simplified, '
+            'use the pack whose folder is usually named "chinese-simplified".',
+            '该中文包的内容是繁体中文。合并本身没有问题，但标签会是繁体。'
+            '如果你要的是简体，请改用通常名为「chinese-simplified」的那个包。'))
 
     report['xaml'] = [n for n in XAML_FILES
                       if os.path.exists(os.path.join(en_dir, n))
@@ -603,23 +738,103 @@ def restore(backup_dir, target_dir, progress=None):
 
 # ------------------------------------------------------- installed packs
 
-COMMON_ROOTS = (
-    r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS',
-    r'C:\Program Files\SolidWorks Corp\SolidWorks',
-    r'C:\Program Files (x86)\SOLIDWORKS Corp\SOLIDWORKS',
+INSTALL_TEMPLATES = (
+    r'%s:\Program Files\SOLIDWORKS Corp\SOLIDWORKS',
+    r'%s:\Program Files\SolidWorks Corp\SolidWorks',
+    r'%s:\Program Files (x86)\SOLIDWORKS Corp\SOLIDWORKS',
 )
+
+# The Simplified pack first: `chinese` is Traditional Chinese.
+CHINESE_PACK_NAMES = ('chinese-simplified', 'chinese_simplified',
+                      'chinese-simplified-gb', 'chinese')
+
+
+def _registry_install_roots():
+    """Installation folders recorded by the SOLIDWORKS installer."""
+    roots = []
+    try:
+        import winreg
+    except ImportError:
+        return roots
+    for path in (r'SOFTWARE\SolidWorks', r'SOFTWARE\WOW6432Node\SolidWorks'):
+        try:
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path)
+        except OSError:
+            continue
+        try:
+            index = 0
+            while True:
+                try:
+                    name = winreg.EnumKey(key, index)
+                except OSError:
+                    break
+                index += 1
+                if not name.upper().startswith('SOLIDWORKS'):
+                    continue
+                try:
+                    setup = winreg.OpenKey(key, name + r'\Setup')
+                    try:
+                        value = winreg.QueryValueEx(setup, 'SolidWorks Folder')[0]
+                        if value:
+                            roots.append(value)
+                    finally:
+                        winreg.CloseKey(setup)
+                except OSError:
+                    continue
+        finally:
+            winreg.CloseKey(key)
+    return roots
+
+
+def _drive_install_roots():
+    """The standard installation path, looked for on every drive letter."""
+    roots = []
+    for letter in 'CDEFGHIJKLMNOPQRSTUVWXYZ':
+        for template in INSTALL_TEMPLATES:
+            path = template % letter
+            if os.path.isdir(path):
+                roots.append(path)
+    return roots
 
 
 def find_installed_lang_dirs():
-    """Best-effort search for installed language folders. Returns {name: path}."""
+    """Search for installed language folders. Returns {folder name: path}.
+
+    The registry is consulted first, because an installation does not have to
+    live on C: or under Program Files, then every drive letter is tried.
+    """
     found = {}
     if not IS_WINDOWS:
         return found
-    for root in COMMON_ROOTS:
+    for root in _registry_install_roots() + _drive_install_roots():
         lang = os.path.join(root, 'lang')
-        if os.path.isdir(lang):
-            for name in sorted(os.listdir(lang)):
-                p = os.path.join(lang, name)
-                if os.path.isdir(p) and os.path.exists(os.path.join(p, ANCHOR_DLL)):
-                    found.setdefault(name.lower(), p)
+        if not os.path.isdir(lang):
+            continue
+        try:
+            names = sorted(os.listdir(lang))
+        except OSError:
+            continue
+        for name in names:
+            path = os.path.join(lang, name)
+            if os.path.isdir(path) and _is_pack(path):
+                found.setdefault(name.lower(), path)
     return found
+
+
+def pick_chinese_pack(packs):
+    """The Simplified Chinese pack out of {name: path}, or None.
+
+    What the pack contains decides; the folder name is only a tie-breaker,
+    because SOLIDWORKS ships Chinese and Chinese Simplified as separate
+    languages and installations disagree about which folder holds which.
+    """
+    candidates = {n: p for n, p in packs.items() if n.lower().startswith('chinese')}
+    if not candidates:
+        return None
+    for name, path in sorted(candidates.items()):
+        if pack_chinese_variant(path) == 'simplified':
+            return path
+    for name in CHINESE_PACK_NAMES:
+        if name in candidates:
+            return candidates[name]
+    return sorted(candidates.values())[0]

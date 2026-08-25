@@ -24,7 +24,8 @@ class Inspect(unittest.TestCase):
         path = os.path.join(self.tmp, name)
         os.makedirs(path)
         for f in files:
-            open(os.path.join(path, f), 'wb').write(b'')
+            with open(os.path.join(path, f), 'wb'):
+                pass
         return path
 
     def test_missing_folder_is_an_error(self):
