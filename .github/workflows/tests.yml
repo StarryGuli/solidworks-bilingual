@@ -30,6 +30,14 @@ jobs:
           python swbilingual-cli.py --help
           python swbilingual-cli.py --lang zh --help
 
+      # The sample pack is the demo path for anyone without SOLIDWORKS, so it
+      # has to keep working on every platform.
+      - name: Run the sample pack demo
+        run: |
+          python tools/make_sample_pack.py samples
+          python swbilingual-cli.py check samples/english samples/chinese
+          python swbilingual-cli.py preview samples/english samples/chinese
+
       - name: Check the command line on a console without Chinese
         env:
           PYTHONIOENCODING: cp1252

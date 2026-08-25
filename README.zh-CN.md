@@ -91,6 +91,28 @@ python swbilingual-cli.py --lang zh install D:\out "C:\Program Files\SOLIDWORKS 
 
 各命令的完整说明见 [`docs/command-line.zh-CN.md`](docs/command-line.zh-CN.md)。
 
+## 没有 SOLIDWORKS 也能先试
+
+仓库里带了一小对生成出来的语言包，在动真实安装之前，任意操作系统上都能直接跑：
+
+```
+python swbilingual-cli.py --lang zh check   samples/english samples/chinese
+python swbilingual-cli.py --lang zh preview samples/english samples/chinese
+```
+
+```
+已检查 1 个文件，匹配字符串 20 对，其中 15 条将变为双语。
+----------------------------------------------------------
+Extrude Shape 拉伸形体
+Round Edge 圆化边线
+Measure Distance 测量距离
+&Save Copy 保存副本
+```
+
+这些标签属于一个虚构的建模软件，是为本项目编写的，**没有任何内容来自 SOLIDWORKS**。
+20 条里有 5 条是故意不可合并的——格式化字符串、文件过滤器、URL、长句、未翻译项——
+好让预览同时展示过滤行为。
+
 ## 两个语言包在哪里
 
 都在 SOLIDWORKS 安装目录下：
@@ -102,9 +124,13 @@ C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
 
 运行 `swbilingual-cli.py locate` 可以列出本机已有的语言文件夹及其构建号。
 
-如果没有装中文包，重新运行 SOLIDWORKS 安装程序，把中文添加为附加语言即可。
-注意有些版本里 `chinese` 是**繁体**中文；本工具需要的是简体包，
-即标签内容与上面示例一致的那一份。
+英文包一定有；中文包通常需要另外添加，并且要通过 SOLIDWORKS 安装管理程序添加，
+才能保证与你的构建号一致。
+**[获取两个语言包](docs/getting-the-language-packs.zh-CN.md)** 里有分步图解式说明，
+并覆盖了手动下载安装介质、以及简体/繁体装错这个坑。
+
+本仓库不分发语言包。语言包是 Dassault Systèmes 的软件，
+只能来自你自己已获授权的安装。
 
 > **构建号必须一致。** 资源 ID 是按构建分配的，
 > 拿不同构建的两个包去合并，会把毫不相干的字符串配成一对。
@@ -179,6 +205,7 @@ SOLIDWORKS 是 Dassault Systèmes 的注册商标。语言包及其译文的版�
 
 | | |
 |---|---|
+| [获取两个语言包](docs/getting-the-language-packs.zh-CN.md) | 如何添加中文包、官方下载渠道、构建号如何对上 |
 | [工作原理](docs/how-it-works.zh-CN.md) | 每一步做了什么，以及三项检查为什么存在 |
 | [命令行参考](docs/command-line.zh-CN.md) | 全部命令与选项 |
 | [常见问题](docs/troubleshooting.zh-CN.md) | 构建被拒、校验失败、如何撤销安装 |

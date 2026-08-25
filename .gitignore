@@ -11,17 +11,21 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Language packs and generated packs must never be committed:
-# they are Dassault Systèmes files, several hundred megabytes each.
-*.dll
+# Language packs and generated packs must never be committed: they are
+# Dassault Systemes files, several hundred megabytes each. The patterns are
+# anchored to the root so that the synthetic sample pack, which contains no
+# SOLIDWORKS material, is still tracked.
 *.chm
 *.xaml
-english/
-english_*/
-chinese/
-chinese_*/
+/english/
+/english_*/
+/chinese/
+/chinese_*/
 *.backup-*/
-out/
+/out/
+
+*.dll
+!samples/**/*.dll
 
 # Editors and operating systems
 .vscode/

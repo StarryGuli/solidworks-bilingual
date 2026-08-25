@@ -100,6 +100,30 @@ python swbilingual-cli.py install D:\out "C:\Program Files\SOLIDWORKS Corp\SOLID
 Add `--lang zh` for Chinese output. Every command is described in
 [`docs/command-line.md`](docs/command-line.md).
 
+## Try it without SOLIDWORKS
+
+The repository carries a small generated pair of packs, so the tool can be run
+on any operating system before you touch a real installation:
+
+```
+python swbilingual-cli.py check   samples/english samples/chinese
+python swbilingual-cli.py preview samples/english samples/chinese
+```
+
+```
+Examined 1 files, 20 matched string pairs, 15 would become bilingual.
+----------------------------------------------------------
+Extrude Shape 拉伸形体
+Round Edge 圆化边线
+Measure Distance 测量距离
+&Save Copy 保存副本
+```
+
+Those labels belong to an imaginary modelling program and were written for this
+project; nothing in the sample comes from SOLIDWORKS. Five of the twenty entries
+are deliberately unmergeable — a format string, a file filter, a URL, a long
+sentence and an untranslated label — so the preview shows the filtering too.
+
 ## Finding the two language packs
 
 Both live under the SOLIDWORKS installation:
@@ -112,10 +136,14 @@ C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese
 `swbilingual-cli.py locate` lists the folders present on the machine, with their
 build numbers.
 
-If the Chinese pack is not installed, add it by running the SOLIDWORKS installer
-again and selecting Chinese as an additional language. Note that some
-distributions ship `chinese` as Traditional Chinese; the Simplified pack is the
-one whose labels match the examples above.
+English is always installed; the Chinese pack usually has to be added, through
+the SOLIDWORKS Installation Manager so that it matches your build.
+**[Getting the two language packs](docs/getting-the-language-packs.md)** walks
+through it step by step, and covers downloading the media manually and the
+Simplified versus Traditional trap.
+
+This repository does not distribute language packs. They are Dassault Systèmes
+software and come from your own licensed installation.
 
 > **The build numbers must match.** Resource identifiers are assigned per build,
 > so merging packs from different builds pairs unrelated strings. The tool reads
@@ -203,6 +231,7 @@ creates.
 
 | | |
 |---|---|
+| [Getting the two language packs](docs/getting-the-language-packs.md) | Adding the Chinese pack, official downloads, matching build numbers |
 | [How it works](docs/how-it-works.md) | What each pass does, and why the checks exist |
 | [Command line reference](docs/command-line.md) | Every command and option |
 | [Troubleshooting](docs/troubleshooting.md) | Refused builds, failed verification, undoing an installation |
