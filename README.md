@@ -20,8 +20,23 @@ Chinese translation, taken from the official Chinese pack of the same build.
 
 ## What it produces
 
-Real entries from a pack built with this tool (SOLIDWORKS 2025 SP0, build
-33.0.0.5050):
+Screenshots of a SOLIDWORKS 2025 installation running a pack built with this
+tool. The ribbon, the feature tree, menus, tooltips and dialogs all read
+`English 中文`:
+
+![Ribbon and feature tree](docs/images/result-ribbon.png)
+
+| | |
+|---|---|
+| ![Sketch tools menu](docs/images/result-sketch-menu.png) | ![Right-click menu](docs/images/result-context-menu.png) |
+| ![A ribbon tooltip](docs/images/result-tooltip.png) | ![Mass Properties dialog](docs/images/result-dialog.png) |
+
+The tooltip body keeps its English description on purpose: only short labels are
+merged, so the long explanation stays readable as written. The Mass Properties
+dialog shows a limit worth knowing about — see
+[Known limitations](#known-limitations).
+
+Real entries from the same pack (SOLIDWORKS 2025 SP0, build 33.0.0.5050):
 
 ```
 Extruded Boss/Base 拉伸凸台/基体
@@ -215,6 +230,12 @@ folder is not writable otherwise.
   removed. This affects 16 of 25,033 merged entries on the reference build.
 - **Dialogs that cannot be re-encoded byte for byte are skipped** rather than
   risking a corrupt template.
+- **Some captions in fixed-size dialogs are clipped.** A control is only widened
+  into free space, so where a dialog has none the longer bilingual caption is
+  cut off at the edge. In the Mass Properties dialog above, `Options...`,
+  `Override Mass Properties...` and `Copy to Clipboard` lose a few characters.
+  The dialog stays fully usable; the cut-off part is the Chinese or the tail of
+  the English. Report the dialog name if one gets in your way.
 
 ## Rebuilding after a SOLIDWORKS update
 
