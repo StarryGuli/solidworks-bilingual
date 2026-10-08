@@ -81,8 +81,6 @@ def main():
     app.var_en.set(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english')
     app.var_cn.set(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified')
     app.var_out.set(r'D:\bilingual')
-    app.log('SOLIDWORKS bilingual language pack builder')
-    app.log('Interface smoke test: every widget built, both languages rendered.')
     if args.hold:
         # Keep the window clear of the taskbar so a capture of its rectangle
         # contains the window and nothing else.
