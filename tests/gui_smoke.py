@@ -79,7 +79,7 @@ def main():
     app.lang.set(args.language)
     app.on_language_change()
     app.var_en.set(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english')
-    app.var_cn.set(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese')
+    app.var_cn.set(r'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified')
     app.var_out.set(r'D:\bilingual')
     app.log('SOLIDWORKS bilingual language pack builder')
     app.log('Interface smoke test: every widget built, both languages rendered.')

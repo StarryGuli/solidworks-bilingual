@@ -99,8 +99,8 @@ python swbilingual-cli.py locate
 ```
 python swbilingual-cli.py --lang zh locate
 python swbilingual-cli.py --lang zh check   "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english" ^
-                                            "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese"
-python swbilingual-cli.py --lang zh preview "C:\...\lang\english" "C:\...\lang\chinese" -t Fillet
-python swbilingual-cli.py --lang zh build   "C:\...\lang\english" "C:\...\lang\chinese" D:\bilingual
+                                            "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified"
+python swbilingual-cli.py --lang zh preview "C:\...\lang\english" "C:\...\lang\chinese-simplified" -t Fillet
+python swbilingual-cli.py --lang zh build   "C:\...\lang\english" "C:\...\lang\chinese-simplified" D:\bilingual
 python swbilingual-cli.py --lang zh install D:\bilingual "C:\...\lang\english"
 ```

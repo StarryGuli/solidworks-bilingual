@@ -77,7 +77,7 @@ python swbilingual-cli.py locate
 ## 确认两个包匹配
 
 ```
-python swbilingual-cli.py check "C:\...\lang\english" "C:\...\lang\chinese"
+python swbilingual-cli.py check "C:\...\lang\english" "C:\...\lang\chinese-simplified"
 ```
 
 两个构建号必须完全一致，它们读自 `sldresu.dll` 的文件版本。

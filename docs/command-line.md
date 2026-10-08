@@ -108,8 +108,8 @@ be used as a test in a script.
 ```
 python swbilingual-cli.py locate
 python swbilingual-cli.py check   "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\english" ^
-                                  "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese"
-python swbilingual-cli.py preview "C:\...\lang\english" "C:\...\lang\chinese" -t Fillet
-python swbilingual-cli.py build   "C:\...\lang\english" "C:\...\lang\chinese" D:\bilingual
+                                  "C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\lang\chinese-simplified"
+python swbilingual-cli.py preview "C:\...\lang\english" "C:\...\lang\chinese-simplified" -t Fillet
+python swbilingual-cli.py build   "C:\...\lang\english" "C:\...\lang\chinese-simplified" D:\bilingual
 python swbilingual-cli.py install D:\bilingual "C:\...\lang\english"
 ```

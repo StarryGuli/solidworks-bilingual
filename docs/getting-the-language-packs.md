@@ -90,7 +90,7 @@ SOLIDWORKS administrator, not from the public download page.
 ## Confirming the two packs match
 
 ```
-python swbilingual-cli.py check "C:\...\lang\english" "C:\...\lang\chinese"
+python swbilingual-cli.py check "C:\...\lang\english" "C:\...\lang\chinese-simplified"
 ```
 
 Both build numbers must be identical. They are read from the file version of
