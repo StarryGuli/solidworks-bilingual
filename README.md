@@ -14,6 +14,8 @@ Chinese translation, taken from the official Chinese pack of the same build.
 
 [中文说明](README.zh-CN.md)
 
+![SOLIDWORKS commands reading English 中文](docs/images/social-preview.png)
+
 ![The desktop application](docs/images/interface-en.png)
 
 ---

@@ -12,6 +12,8 @@ SOLIDWORKS 仍然加载它原来的英文语言包，不需要改动任何设置
 
 [English](README.md)
 
+![SOLIDWORKS 命令显示为 English 中文](docs/images/social-preview.png)
+
 ![桌面程序](docs/images/interface-zh.png)
 
 ---
